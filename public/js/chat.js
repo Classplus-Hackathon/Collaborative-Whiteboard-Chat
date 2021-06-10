@@ -19,25 +19,22 @@ if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeig
 }
 socket.on('connect', function () {
  var params = jQuery.deparam(window.location.search);
- console.log("socket 1",window.localStorage.getItem("messages"));
 
   if(window.localStorage.getItem("messages")) {
     var tempAray = JSON.parse(window.localStorage.getItem("messages"));
-    console.log("tempAray",tempAray);
     var template = jQuery('#message-template').html();
     
     tempAray.forEach(function (message) {
-      console.log("message,message",message);
       var html =Mustache.render(template, {
         text: message.text,
         from: message.from,
         createAt:message.createAt
       });
-      console.log("html",html);
       jQuery('#messages').append(html);
+      scrollToBottom();
     });
     
-    scrollToBottom();
+    
   } else {
     window.localStorage.setItem("messages",JSON.stringify([]));
   }
@@ -52,16 +49,13 @@ socket.on('connect', function () {
 });
 
 socket.on('disconnect', function () {
-  console.log("socket 2");
 
   console.log('Disconnected from server');
 });
 
 socket.on('updateUserList', function (users) {
-  console.log("socket 3");
 
   var ol = jQuery('<ol></ol>');
-  console.log("users",users);
   users.forEach(function (user) {
     ol.append(jQuery('<li></li>').text(user));
   });
@@ -70,7 +64,6 @@ socket.on('updateUserList', function (users) {
 });
 
 socket.on('newMessage', function (message) {
-  console.log("socket 4");
 
   var formattedTime = moment(message.createAt).format('h:mm a')
   var template = jQuery('#message-template').html();
@@ -81,21 +74,17 @@ socket.on('newMessage', function (message) {
   }
   var arrayMessage = JSON.parse(window.localStorage.getItem("messages"));
   arrayMessage = [...arrayMessage,payload];
-  console.log("arrayMessage",arrayMessage);
   window.localStorage.setItem("messages",JSON.stringify(arrayMessage));
-  console.log("savedd values",JSON.parse(window.localStorage.getItem("messages")));
  var html =Mustache.render(template, {
    text: message.text,
    from: message.from,
    createAt:formattedTime
  });
- console.log("html",html);
  jQuery('#messages').append(html);
  scrollToBottom();
 });
 
 socket.on('newLocationMessage', function (message) {
-  console.log("socket 5");
 
   var formattedTime = moment(message.createAt).format('h:mm a')
   var template = jQuery('#location-message-template').html();
@@ -110,7 +99,6 @@ socket.on('newLocationMessage', function (message) {
 });
 
 jQuery('#message-form').on('submit', function (e) {
-  console.log("socket 6");
 
   e.preventDefault();
 var messageTextBox = jQuery('[name=message]')
