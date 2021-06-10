@@ -1,0 +1,31 @@
+{
+  "name": "whiteboard",
+  "version": "1.0.0",
+  "description": "Collaborative Whiteboard",
+  "main": "server.js",
+  "directories": {},
+  "scripts": {
+    "test": "echo \"No tests needed!\" && exit 1"
+  },
+  "repository": {
+    "type": "",
+    "url": ""
+  },
+  "keywords": [
+    "whiteboard",
+    "whiteboard-draw",
+    "Sketchboard",
+    "lightweight"
+  ],
+  "dependencies": {
+    "express": "*",
+    "formidable": "*",
+    "fs-extra": "*",
+    "moment": "^2.24.0",
+    "rtcmulticonnection-server": "^1.3.1",
+    "serberries": "^1.1.0",
+    "socket.io": "2.*"
+  },
+  "author": "HK",
+  "license": "MIT"
+}
