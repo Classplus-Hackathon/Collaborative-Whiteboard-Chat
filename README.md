@@ -32,3 +32,9 @@ nodemon server
 
 <b>#NOTE: Query params room and name are required</b><br>
 Navigate to localhost:8000?room={{your_room}}&name={{your_name}}
+
+# Deployed Link
+
+https://garudpuran-classplus.herokuapp.com/?room={{room_name}}&name={{your_name}}
+
+
