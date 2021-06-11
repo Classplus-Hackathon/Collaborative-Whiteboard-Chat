@@ -17,6 +17,48 @@ function scrollToBottom() {
     messages.scrollTop(scrollHeight);
   }
 }
+
+var isActive = true;
+
+$().ready(function () {
+  console.log("http://localhost:8000/?room=MYID&name=HaHA");
+  //EITHER USE A GLOBAL VAR OR PLACE VAR IN HIDDEN FIELD
+  //IF FOR WHATEVER REASON YOU WANT TO STOP POLLING
+  pollServer();
+});
+
+function pollServer() {
+  if (isActive) {
+    window.setTimeout(function () {
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      const params = Object.fromEntries(urlSearchParams.entries());
+      $.ajax({
+        url: `/fetchTrending?room=${params.room}`,
+        type: "GET",
+        success: function (result) {
+          //SUCCESS LOGIC
+          var template = jQuery('#message-template').html();
+          result.data.forEach(function (message) {
+            var html = Mustache.render(template, {
+              text: message,
+              from: "TRENDING",
+            });
+            jQuery('#messages-again').append(html);
+          });
+            pollServer();
+            setTimeout(() => {
+              $("#chat__messages_trend ol").html("");
+            },5000)
+            
+          },
+            error: function () {
+              //ERROR HANDLING
+              pollServer();
+            }});
+    }, 2500);
+  }
+}
+
 socket.on('connect', function () {
   var params = jQuery.deparam(window.location.search);
 
@@ -28,7 +70,7 @@ socket.on('connect', function () {
     var template = jQuery('#message-template').html();
     let welcomeOnce = false;
     tempAray.forEach(function (message) {
-      if ( params.name === message.from) {
+      if (params.name === message.from) {
         template = jQuery('#message-template-same').html();
       }
       else {
@@ -40,7 +82,6 @@ socket.on('connect', function () {
         createAt: message.createAt
       });
       jQuery('#messages').append(html);
-      jQuery('#messages-again').append(html);
       scrollToBottom();
     });
 
@@ -78,7 +119,7 @@ socket.on('newMessage', function (message) {
   const params = Object.fromEntries(urlSearchParams.entries());
 
   var template = jQuery('#message-template').html();
-  if (message.from !== "Admin" &&params.name === message.from) {
+  if (message.from !== "Admin" && params.name === message.from) {
     template = jQuery('#message-template-same').html();
   }
   var formattedTime = moment(message.createAt).format('h:mm a')
@@ -92,11 +133,10 @@ socket.on('newMessage', function (message) {
   window.sessionStorage.setItem("messages", JSON.stringify(arrayMessage));
   var html = Mustache.render(template, {
     text: message.text,
-    from: (params.name === message.from) ? "You"  : message.from,
+    from: (params.name === message.from) ? "You" : message.from,
     createAt: formattedTime
   });
   jQuery('#messages').append(html);
-  jQuery('#messages-again').append(html);
   scrollToBottom();
 });
 
