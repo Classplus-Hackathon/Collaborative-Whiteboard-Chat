@@ -55,7 +55,7 @@ function pollServer() {
               //ERROR HANDLING
               pollServer();
             }});
-    }, 2500);
+    }, 5000);
   }
 }
 
