@@ -31,6 +31,7 @@ socket.on('connect', function () {
         createAt:message.createAt
       });
       jQuery('#messages').append(html);
+      jQuery('#messages-again').append(html);
       scrollToBottom();
     });
     
@@ -81,6 +82,7 @@ socket.on('newMessage', function (message) {
    createAt:formattedTime
  });
  jQuery('#messages').append(html);
+ jQuery('#messages-again').append(html);
  scrollToBottom();
 });
 
