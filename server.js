@@ -41,7 +41,7 @@ app.get('/fetchTrending', (req, res) => {
 
     let roomMessages = [];
     messages.messages.map(messageObj => {
-        if(messageObj.room = room){
+        if(messageObj.room == room){
             roomMessages.push(messageObj.messageText)
         }
     })  
