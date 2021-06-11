@@ -9,6 +9,7 @@ const RTCMultiConnectionServer = require('rtcmulticonnection-server');
 // const bodyParser = require('body-parser');
 const {isRealString} = require('./server/utils/validation')
 const {Users} = require('./server/utils/users');
+const {Messages} = require('./server/utils/messageStorage');
 
 var formidable = require('formidable'); //form upload processing
 var s_whiteboard = require("./s_whiteboard.js");
@@ -17,6 +18,8 @@ var app = express();
 app.use(express.static(__dirname + '/public'));
 var server = require('http').Server(app);
 var users = new Users();
+var messages = new Messages();
+
 server.listen(PORT);
 var io = require('socket.io')(server);
 
@@ -86,82 +89,91 @@ function progressUploadFormData(formData) {
 
 
 var allUsers = {};
-io.on('connection', function (socket) {
+io.on("connection", function (socket) {
+  RTCMultiConnectionServer.addSocket(socket);
+  const params = socket.handshake.query;
 
-    RTCMultiConnectionServer.addSocket(socket);
+  if (!params.socketCustomEvent) {
+    params.socketCustomEvent = "custom-message";
+  }
 
-    // ----------------------
-    // below code is optional
+  socket.on(params.socketCustomEvent, function (message) {
+    socket.broadcast.emit(params.socketCustomEvent, message);
+  });
 
-    const params = socket.handshake.query;
-
-    if (!params.socketCustomEvent) {
-        params.socketCustomEvent = 'custom-message';
+  socket.on("join", (params, callback) => {
+    if (!isRealString(params.name) || !isRealString(params.room)) {
+      return callback("Name and room name are required ");
     }
 
-    socket.on(params.socketCustomEvent, function(message) {
-        socket.broadcast.emit(params.socketCustomEvent, message);
-    });
+    //joining particular room
+    socket.join(params.room);
+    users.removeUser(socket.id);
+    users.addUser(socket.id, params.name, params.room);
+    io.to(params.room).emit("updateUserList", users.getUserList(params.room));
+    socket.emit("newMessage", generateMessage("Admin", "welcome to chat room"));
+    socket.broadcast
+      .to(params.room)
+      .emit(
+        "newMessage",
+        generateMessage("Admin", `${params.name} has joined`)
+      );
+    callback();
+  });
 
-    socket.on('join', (params,callback) => {
-        if(!isRealString(params.name) || !isRealString(params.room)){
-         return callback('Name and room name are required ');
-        }
+  socket.on("createMessage", (message, callback) => {
+    var user = users.getUser(socket.id);
 
+    if (user && isRealString(message.text)) {
+      messages.addMessageToStore(socket.id, message.text, user.room)
+      io.to(user.room).emit(
+        "newMessage",
+        generateMessage(user.name, message.text)
+      );
+    }
+    console.log(messages);
 
-        //joining particular room
-        socket.join(params.room);
-        users.removeUser(socket.id);
-          users.addUser(socket.id, params.name, params.room);
-        //io.emit -> io.to(room name here)
-        //socket.broadcast -> socket.broadcast.to(room name).emit
-        io.to(params.room).emit('updateUserList', users.getUserList(params.room));
-        socket.emit('newMessage',generateMessage('Admin', 'welcome to chat room'));
-      socket.broadcast.to(params.room).emit('newMessage', generateMessage( 'Admin', `${params.name} has joined`));
-        callback();
-      });
-      socket.on('createMessage', (message, callback) => {
-        var user = users.getUser(socket.id);
-      
-        if (user && isRealString(message.text)) {
-          io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
-        }
-      
-        callback();
-      });
-      
-       // ### io emits the event to all the user including the one who sends it  ###
-       socket.on('createLocationMessage', (coords) => {
-        var user = users.getUser(socket.id);
-      
-          if (user) {
-            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));  
-          }
-        });
-      
-    socket.on('disconnect', function () {
-        var user = users.removeUser(socket.id);
+    callback();
+  });
 
-        if (user) {
-          io.to(user.room).emit('updateUserList', users.getUserList(user.room));
-          io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
-        }
-        delete allUsers[socket.id];
-        socket.broadcast.emit('refreshUserBadges', null);
-    });
+  // ### io emits the event to all the user including the one who sends it  ###
+  socket.on("createLocationMessage", (coords) => {
+    var user = users.getUser(socket.id);
 
-    socket.on('drawToWhiteboard', function (content) {
-        content = escapeAllContentStrings(content);
-        sendToAllUsersOfWhiteboard(content["wid"], socket.id, content)
-        s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
-    });
+    if (user) {
+      io.to(user.room).emit(
+        "newLocationMessage",
+        generateLocationMessage(user.name, coords.latitude, coords.longitude)
+      );
+    }
+  });
 
-    socket.on('joinWhiteboard', function (wid) {
-        allUsers[socket.id] = {
-            "socket": socket,
-            "wid": wid
-        };
-    });
+  socket.on("disconnect", function () {
+    var user = users.removeUser(socket.id);
+
+    if (user) {
+      io.to(user.room).emit("updateUserList", users.getUserList(user.room));
+      io.to(user.room).emit(
+        "newMessage",
+        generateMessage("Admin", `${user.name} has left.`)
+      );
+    }
+    delete allUsers[socket.id];
+    socket.broadcast.emit("refreshUserBadges", null);
+  });
+
+  socket.on("drawToWhiteboard", function (content) {
+    content = escapeAllContentStrings(content);
+    sendToAllUsersOfWhiteboard(content["wid"], socket.id, content);
+    s_whiteboard.handleEventsAndData(content); //save whiteboardchanges on the server
+  });
+
+  socket.on("joinWhiteboard", function (wid) {
+    allUsers[socket.id] = {
+      socket: socket,
+      wid: wid,
+    };
+  });
 });
 
 function sendToAllUsersOfWhiteboard(wid, ownSocketId, content) {
