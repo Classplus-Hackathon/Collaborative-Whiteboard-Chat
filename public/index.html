@@ -37,11 +37,11 @@
 	<div class="chat__main">
 		<div class="chat__structure">
 			<div class="chat__messages_again">
-				<h2 class="chat__message_header">Chat</h2>
+				<h2 class="chat__message_header">Messages</h2>
 				<ol id = "messages" class="chat__messages"></ol>
 			</div>
-			<div class="chat__messages_again">
-				<h2 class="chat__message_header">Trending</h2>
+			<div class="chat__messages_trend">
+				<h2 class="chat__message_header_trending">Trending</h2>
 				<ol id = "messages-again" class="chat__messages"></ol>
 			</div>
 		</div>
@@ -69,6 +69,18 @@
   </li>
   
    </script>
+   <script id="message-template-same" type = "text/template">
+	<li class ="message-same">
+	<div class ="message__tile_same">
+		<h4>{{from}}</h4>
+		<span>{{createAt}}</span>
+	</div>
+	<div class = "message__body_same">
+		<p>{{text}}</p>
+	</div>
+   </li>
+   
+	</script>
    <script id="location-message-template" type = "text/template">
 	  <li class ="message">
 	  <div class ="message__title">
@@ -84,7 +96,7 @@
 	 
 	  </script>
 	</div>
-<div style="position: relative; margin: 0px; height: 100vh; width: 60%; overflow: hidden; float: left;" >
+<div style="position: relative; margin: 0px; height: 100vh; width: 50%; overflow: hidden; float: left;" >
 	  	  
 	<!---Whiteboard container -!-->
 	<div style="height: 100vh; width: 100%;" id="whiteboardContainer"></div>
