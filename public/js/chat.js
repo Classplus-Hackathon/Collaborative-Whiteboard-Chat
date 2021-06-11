@@ -20,8 +20,8 @@ if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeig
 socket.on('connect', function () {
  var params = jQuery.deparam(window.location.search);
 
-  if(window.localStorage.getItem("messages")) {
-    var tempAray = JSON.parse(window.localStorage.getItem("messages"));
+  if(window.sessionStorage.getItem("messages")) {
+    var tempAray = JSON.parse(window.sessionStorage.getItem("messages"));
     var template = jQuery('#message-template').html();
     
     tempAray.forEach(function (message) {
@@ -37,7 +37,7 @@ socket.on('connect', function () {
     
     
   } else {
-    window.localStorage.setItem("messages",JSON.stringify([]));
+    window.sessionStorage.setItem("messages",JSON.stringify([]));
   }
  socket.emit('join',params,function(err){
    if (err){
@@ -73,9 +73,9 @@ socket.on('newMessage', function (message) {
    from: message.from,
    createAt:formattedTime
   }
-  var arrayMessage = JSON.parse(window.localStorage.getItem("messages"));
+  var arrayMessage = JSON.parse(window.sessionStorage.getItem("messages"));
   arrayMessage = [...arrayMessage,payload];
-  window.localStorage.setItem("messages",JSON.stringify(arrayMessage));
+  window.sessionStorage.setItem("messages",JSON.stringify(arrayMessage));
  var html =Mustache.render(template, {
    text: message.text,
    from: message.from,
