@@ -21,7 +21,7 @@
     font-size: 1.5rem;
   }
   .chat{
-    width: 40%;
+    width: 50%;
     float: right;
   }
   button {
@@ -140,7 +140,15 @@
   }
 
   .chat__messages_again {
-    width: 50%;
+    width: 60%;
+    -webkit-overflow-scrolling: touch;
+    border-right: 1px solid black;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chat__messages_trend {
+    width: 40%;
     -webkit-overflow-scrolling: touch;
     border-right: 1px solid black;
     overflow-y: scroll;
@@ -151,6 +159,16 @@
     font-size: 24px;
     border-bottom: 1px solid;
     padding: 3%;
+    box-shadow: 8px 2px 5px grey;
+    background-color: aliceblue;
+  }
+
+  .chat__message_header_trending {
+    font-size: 24px;
+    border-bottom: 1px solid;
+    padding: 5%;
+    box-shadow: 8px 2px 5px grey;
+    background-color: aliceblue;
   }
   
   .chat__footer {
@@ -183,15 +201,56 @@
   
   .message {
     padding: 10px;
+    border-radius: 3%;
+    background-color: lightgray;
+    margin-top: 5%;
+    width: 80%;
+    float: left;
+    box-shadow: 1px 1px 3px grey;
+
+  }
+  
+  .message-same {
+    padding: 10px;
+    border-radius: 3%;
+    background-color: antiquewhite;
+    margin-top: 5%;
+    float: right;
+    width: 80%;
+    box-shadow: 1px 1px 3px grey;
+
+  }
+
+  .message__body_same {
+    text-align: right;
   }
   
   .message__title {
     display: flex;
     margin-bottom: 5px;
   }
+
+  .message__tile_same {
+    display: flex;
+    margin-bottom: 5px;
+    justify-content: flex-end;
+  }
+
+  .message__tile_same h4 {
+    font-weight: 600;
+    font-size: 13px;
+    color: lightcoral;
+    margin-right: 10px;
+  }
+  
+  .message__tile_same span {
+    color: #999;
+  }
   
   .message__title h4 {
     font-weight: 600;
+    font-size: 13px;
+    color: lightcoral;
     margin-right: 10px;
   }
   
