@@ -1,0 +1,9 @@
+GitHub Link: https://github.com/Classplus-Hackathon/Collaborative-Whiteboard-Chat
+
+Readme Link: https://github.com/Classplus-Hackathon/Collaborative-Whiteboard-Chat/blob/main/README.md
+
+Hosted Link: https://garudpuran-classplus.herokuapp.com/?room=YOUR_ROOM_NAME&name=YOUR_NAME
+
+Drive Link: https://drive.google.com/drive/folders/1oKGKl_FtIiG7fbtmPOOnYYjUhVqxAW2L?usp=sharing
+
+PPT Link: https://docs.google.com/presentation/d/1JfK24i66e7poqMJfDXUYJzoS43KXUbJAjg5VET_1x1A/edit?usp=sharing
