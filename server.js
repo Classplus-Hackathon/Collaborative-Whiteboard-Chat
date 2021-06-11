@@ -6,13 +6,14 @@ var express = require('express');
 const path = require('path');
 const http = require('http');
 const RTCMultiConnectionServer = require('rtcmulticonnection-server');
-// const bodyParser = require('body-parser');
 const {isRealString} = require('./server/utils/validation')
 const {Users} = require('./server/utils/users');
 const {Messages} = require('./server/utils/messageStorage');
 
 var formidable = require('formidable'); //form upload processing
 var s_whiteboard = require("./s_whiteboard.js");
+
+const lda = require('lda');
 
 var app = express();
 app.use(express.static(__dirname + '/public'));
@@ -23,18 +24,43 @@ var messages = new Messages();
 server.listen(PORT);
 var io = require('socket.io')(server);
 
-const { generateMessage ,generateLocationMessage} = require('./server/utils/message')
+const { generateMessage ,generateLocationMessage} = require('./server/utils/message');
+const message = require("./server/utils/message");
 
 console.log("Webserver & socketserver running on port:" + PORT);
 
-app.get('/loadwhiteboard', function (req, res) {
+app.get('/loadwhiteboard',  (req, res) => {
     var wid = req["query"]["wid"];
     var ret = s_whiteboard.loadStoredData(wid);
     res.send(ret);
     res.end();
 });
 
-app.post('/upload', function (req, res) { //File upload
+app.get('/fetchTrending', (req, res) => {
+    let { room } = req.query;
+
+    let roomMessages = [];
+    messages.messages.map(messageObj => {
+        if(messageObj.room = room){
+            roomMessages.push(messageObj.messageText)
+        }
+    })  
+    let results = lda(roomMessages, 5, 1, null, null, null, 10);
+
+    let hash = {}
+    results.map(resultKeyWords => {
+        resultKeyWords = resultKeyWords.map(word => {
+            hash[word.term] = 1;
+        });
+    });
+
+    return res.status(200).send({
+        data:Object.keys(hash)
+        
+    })
+})
+
+app.post('/upload',  (req, res) => { //File upload
     var form = new formidable.IncomingForm(); //Receive form
     var formData = {
         files: {},
@@ -61,6 +87,8 @@ app.post('/upload', function (req, res) { //File upload
     });
     form.parse(req);
 });
+
+
 
 function progressUploadFormData(formData) {
     console.log("Progress new Form Data");
